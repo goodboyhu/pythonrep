@@ -1,1 +1,1 @@
-很好1
+print("Hello Python interpreter!哈哈")
