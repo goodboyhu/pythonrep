@@ -1,0 +1,115 @@
+pip install redis
+
+redis-cli
+设置数据
+set animal 'Cat'
+获取数据
+get animal
+修改数据
+set animal 'Dog'
+追加数据，命令行返回的是修改后value的长度。
+append animal ' Cat'
+设置多个值
+mset user1 'Jhon' user2 'Amy'
+获取多个值
+mget user1 user2 animal
+删除
+del user2
+增加或减少1
+set num 9
+incr/decr num
+get num
+暂存数据10秒
+del animal
+set animal “Cat” EX 10
+get animal
+实际应用中存储用户数据
+set user:john;age:45 '000123456'
+get user:john;age:45
+
+列表
+依次从左/右边插入队列元素lpush、rpush
+lpush q1 "John" "Cat" "Amy"
+查看列表长度
+llen q1
+获取指定长度的内容
+lrange q1 0 -1
+从队列右边插入元素“Bob”
+rpush q1 "Bob"
+lrange q1 0 88888
+lpush q1 "Okw"
+lrange q1 0 -1
+
+key存在的时候才（从左边）插入数据，不存在时不做任何处理
+lpushx q1 "zhang1"
+lrange q1 0 -1
+lpushx q2 "zhang2"
+lrange q2 0 -1
+
+lrange q1 0 -1
+（从左边）截取一定长度（长度为3）的队列
+ltrim q1 0 2
+lrange q1 0 -1
+
+移除最左边的元素，并返回移除的元素
+lpop q1
+lrange q1 0 -1
+移除最右边的元素，并返回移除的元素
+rpop q1
+lrange q1 0 -1
+
+set集合（可以看作于一个无序的队列）
+sadd/srem:添加/删除元素
+sadd zoo Cat Dog
+smembers返回集合所有成员
+smembers zoo
+移除Cat
+srem zoo Cat
+smembers zoo
+
+sismember判断是否为set的一个元素
+sismember zoo Cat
+sismember zoo Dog
+
+再次加入Cat
+sadd zoo Cat
+
+
+sdiff返回一个集合与其他集合的差异（集合的减法？）
+sadd zoo1 Cat Cow
+smembers zoo1
+sdiff zoo zoo1
+sdiff zoo1 zoo
+sinter返回几个集合的交集
+sinter zoo zoo1
+sunion返回几个集合的并集
+sunion zoo zoo1
+
+散列Hash
+hset/hget设置/获取单个散列值
+hset news:1 title "News Title"
+hset news:1 content "News Content"
+hget news:1 title
+hget news:1 content
+
+hmset/hmget设置/获取多对散列值
+hmget news:1 title content
+hmset news:2 title "Title2" content "Content2" is_valid 1
+hmget news:2 title content is_valid
+
+hsetnx如果散列已经存在，则不设置
+hkeys/hvals返回所有的keys/values
+hkeys news:1
+hkeys news:2
+hvals news:2
+
+hlen返回散列包含域（field）的数量，属性个数
+hlen news:1
+hlen news:2
+
+hdel删除散列指定的域（field）
+hdel news:2 is_valid
+hexists判断是否存在
+hexists news:2 is_valid
+hset news:1 is_valid 1
+hexists news:1 is_valid
