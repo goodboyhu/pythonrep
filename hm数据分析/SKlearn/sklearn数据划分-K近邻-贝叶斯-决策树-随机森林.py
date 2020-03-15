@@ -1,4 +1,6 @@
 from sklearn.datasets import load_iris, fetch_20newsgroups, load_boston
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split, GridSearchCV
@@ -42,6 +44,9 @@ from sklearn.preprocessing import StandardScaler
 # K值取很小，比如1，则容易受异常点影响；K值取很大，容易受样本数量影响，产生类别波动。
 # KNN性能较低，计算量大，内存开销大；必须指定K值，默认K值是5。
 # 实际场景中基本不用KNN算法，缺点较大
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
+
+
 def knncls():
     """
     K-近邻预测用户签到位置
@@ -185,5 +190,75 @@ def naviebayes():
     return None
 
 
+def decision():
+    """
+    决策树对泰坦尼克号进行预测生死
+    决策树比较常用，但是有过拟合的问题
+    默认采用基尼系数，特征值的选取处理和超参数的选取都会较大的影响最后的结果。
+    :return: None
+    """
+    # 获取数据
+    titan = pd.read_csv("http://biostat.mc.vanderbilt.edu/wiki/pub/Main/DataSets/titanic.txt")
+
+    # 处理数据，根据经验选出特征值x和目标值y
+    x = titan[['pclass', 'age', 'sex']]
+
+    y = titan['survived']
+
+    print(x)
+    # 缺失值处理并替换（用平均值）
+    x['age'].fillna(x['age'].mean(), inplace=True)
+
+    # 分割数据集到训练集合测试集
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25)
+    #
+    # 进行处理（特征工程）特征-》类别-》one_hot编码
+    dict = DictVectorizer(sparse=False)
+    # print(x_train)
+    # print("-------------------")
+    # print(x_train.to_dict(orient="records"))
+    x_train = dict.fit_transform(x_train.to_dict(orient="records"))#orient="records"默认一行转换为一个字典
+
+    print(dict.get_feature_names())
+
+    x_test = dict.transform(x_test.to_dict(orient="records"))
+
+    # print(x_train)
+    # # 用决策树进行预测
+    # dec = DecisionTreeClassifier()
+    #
+    # dec.fit(x_train, y_train)
+    #
+    # # 预测准确率
+    # print("预测的准确率：", dec.score(x_test, y_test))
+
+    # 导出决策树的结构
+    # export_graphviz(dec, out_file="./tree.dot", feature_names=['年龄', 'pclass=1st', 'pclass=2nd', 'pclass=3rd', '女性', '男性'])
+
+    '''
+    在当前所有算法中，随机森林具有极好的准确率，用的也最多。
+    能够有效地运行在大数据集上
+    能够处理具有高维特征的输入样本，而且不需要降维
+    能够评估各个特征在分类问题上的重要性
+    对于缺省值问题也能够获得很好得结果
+
+    '''
+
+    # 随机森林进行预测 （超参数调优）
+    rf = RandomForestClassifier(n_jobs=-1)
+
+    param = {"n_estimators": [120, 200, 300, 500, 800, 1200], "max_depth": [5, 8, 15, 25, 30]}
+
+    # 网格搜索与交叉验证
+    gc = GridSearchCV(rf, param_grid=param, cv=2)
+
+    gc.fit(x_train, y_train)
+
+    print("准确率：", gc.score(x_test, y_test))
+
+    print("查看选择的参数模型：", gc.best_params_)
+
+    return None
+
 if __name__ == "__main__":
-    knncls()
+    decision()
