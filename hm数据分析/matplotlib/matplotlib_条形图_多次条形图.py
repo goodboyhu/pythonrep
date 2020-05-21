@@ -9,7 +9,7 @@ b_15=[12357,156,2045,168]
 b_14=[2358,399,2358,362]
 
 # 线条宽度
-bar_width=0.2
+bar_width=0.01
 
 x_14=list(range(len(a)))
 x_15=[i+bar_width for i in x_14]
